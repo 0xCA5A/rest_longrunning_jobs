@@ -1,0 +1,79 @@
+openapi: 3.0.0
+info:
+  title: Long Running Job API
+  description: API to start and monitor long-running jobs
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /jobs:
+    post:
+      summary: Start a new long-running job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_type:
+                  type: string
+                  description: Type of the job to start
+                parameters:
+                  type: object
+                  description: Parameters for the job
+              required:
+                - job_type
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    description: Unique identifier for the started job
+    get:
+      summary: Get all running jobs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobStatus'
+  '/jobs/{job_id}':
+    get:
+      summary: Get status of a specific job
+      parameters:
+        - name: job_id
+          in: path
+          description: ID of the job to get status for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatus'
+components:
+  schemas:
+    JobStatus:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: Unique identifier for the job
+        status:
+          type: string
+          description: Current status of the job (e.g., "running", "completed", "failed")
+        progress:
+          type: integer
+          description: Progress of the job (percentage)
